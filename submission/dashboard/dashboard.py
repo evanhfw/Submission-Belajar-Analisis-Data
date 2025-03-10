@@ -2,13 +2,13 @@ import os
 from pathlib import Path
 
 # Cek path
-print("\n" + "=" * 50)
-print("DEBUG PATH INFORMATION")
-print("Current Working Directory (CWD):", os.getcwd())
-print("Script Path:", Path(__file__).absolute())
-print("Parent Directory:", Path(__file__).parent.absolute())
-print("List files in CWD:", os.listdir())
-print("=" * 50 + "\n")
+st.write("\n" + "=" * 50)
+st.write("DEBUG PATH INFORMATION")
+st.write("Current Working Directory (CWD):", os.getcwd())
+st.write("Script Path:", Path(__file__).absolute())
+st.write("Parent Directory:", Path(__file__).parent.absolute())
+st.write("List files in CWD:", os.listdir())
+st.write("=" * 50 + "\n")
 
 import streamlit as st
 import pandas as pd
