@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import streamlit as st
 
 # Cek path
 st.write("\n" + "=" * 50)
@@ -10,7 +11,7 @@ st.write("Parent Directory:", Path(__file__).parent.absolute())
 st.write("List files in CWD:", os.listdir())
 st.write("=" * 50 + "\n")
 
-import streamlit as st
+
 import pandas as pd
 import altair as alt
 
