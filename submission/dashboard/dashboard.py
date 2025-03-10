@@ -21,7 +21,7 @@ def load_data():
     return pd.read_csv("submission/dashboard/main_data.csv")
 
 
-# main_data = load_data()
+main_data = load_data()
 
 # with st.sidebar:
 #     # Logo dan Judul
