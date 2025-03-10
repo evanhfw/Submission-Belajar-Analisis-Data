@@ -16,9 +16,9 @@ import pandas as pd
 import altair as alt
 
 
-# @st.cache_data
-# def load_data():
-#     return pd.read_csv("dashboard/main_data.csv")
+@st.cache_data
+def load_data():
+    return pd.read_csv("submission/dashboard/main_data.csv")
 
 
 # main_data = load_data()
