@@ -3,3 +3,5 @@ numpy
 seaborn
 matplotlib
 streamlit
+altair[all]
+streamlit_folium
