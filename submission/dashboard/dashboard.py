@@ -1,36 +1,6 @@
 import os
 from pathlib import Path
 import streamlit as st
-
-# Cek path relatif terhadap folder submission
-print("\n" + "=" * 50)
-print("DEBUG PATH SUBMISSION")
-current_dir = Path(__file__).parent.absolute()
-submission_dir = current_dir.parent.parent  # Naik 2 level ke folder submission
-
-print("Current Script Path:", current_dir)
-print("Submission Folder Path:", submission_dir)
-print("Isi Folder Submission:", os.listdir(submission_dir))
-print("=" * 50 + "\n")
-
-# Contoh akses file di folder submission
-data_path = submission_dir / "data" / "dataset.csv"
-print("Data Path:", data_path)
-print("File exists?", data_path.exists())
-
-with st.expander("🔍 Debug Path Info", expanded=False):
-    st.code(
-        f"""
-    Current Directory: {current_dir}
-    Submission Directory: {submission_dir}
-    Data Path: {data_path}
-    File Exists: {data_path.exists()}
-    """
-    )
-
-    st.write("Isi Folder Submission:", os.listdir(submission_dir))
-    st.write("Isi Folder Data:", os.listdir(submission_dir / "data"))
-
 import pandas as pd
 import altair as alt
 
