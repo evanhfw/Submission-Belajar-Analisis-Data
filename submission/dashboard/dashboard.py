@@ -1,11 +1,6 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-import folium.plugins as plugins
-import folium.features as features
-from streamlit_folium import st_folium
-import json
-import urllib.request
 
 
 @st.cache_data
