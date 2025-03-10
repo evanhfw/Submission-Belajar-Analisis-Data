@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import folium
 import altair as alt
 import folium.plugins as plugins
 import folium.features as features
