@@ -1,3 +1,15 @@
+import os
+from pathlib import Path
+
+# Cek path
+print("\n" + "=" * 50)
+print("DEBUG PATH INFORMATION")
+print("Current Working Directory (CWD):", os.getcwd())
+print("Script Path:", Path(__file__).absolute())
+print("Parent Directory:", Path(__file__).parent.absolute())
+print("List files in CWD:", os.listdir())
+print("=" * 50 + "\n")
+
 import streamlit as st
 import pandas as pd
 import altair as alt
