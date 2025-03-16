@@ -7,7 +7,10 @@ import altair as alt
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("dashboard/main_data.csv")
+    try:
+        return pd.read_csv("dashboard/main_data.csv")
+    except FileNotFoundError:
+        return pd.read_csv("main_data.csv")
 
 
 main_data = load_data()
@@ -33,15 +36,6 @@ with st.sidebar:
     )
 
     st.markdown("---")
-
-    # Filter dengan grouping
-    with st.expander("🔍 FILTER PRODUK", expanded=True):
-        selected_product_category = st.multiselect(
-            label="Kategori Produk",
-            options=main_data["product_category_name_english"].unique(),
-            default=main_data["product_category_name_english"].unique(),
-            help="Pilih kategori produk yang ingin ditampilkan",
-        )
 
     with st.expander("📍 FILTER LOKASI", expanded=False):
         selected_states = st.multiselect(
@@ -73,6 +67,7 @@ with st.sidebar:
     main_data_filtered = main_data[
         (main_data["order_purchase_timestamp"] >= pd.to_datetime(start_date))
         & (main_data["order_purchase_timestamp"] <= pd.to_datetime(end_date))
+        & main_data["customer_state"].isin(selected_states)
     ]
 
     # Download Button
