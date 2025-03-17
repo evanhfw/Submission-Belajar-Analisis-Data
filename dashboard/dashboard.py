@@ -3,6 +3,7 @@ from pathlib import Path
 import streamlit as st
 import pandas as pd
 import altair as alt
+import matplotlib.pyplot as plt
 
 
 @st.cache_data
@@ -105,120 +106,101 @@ with col2:
 
 st.divider()
 
-st.header("📈📉 Top & Bottom Performers")
-
-# Tambahkan bar chart kategori produk
-product_chart_data = (
-    main_data_filtered["product_category_name_english"]
-    .value_counts()
-    .head(10)
-    .reset_index()
-    .rename(
-        columns={
-            "count": "total_orders",
-            "product_category_name_english": "product_category",
-        }
-    )
-)
-
-product_chart = (
-    alt.Chart(product_chart_data)
-    .mark_bar()
-    .encode(
-        x=alt.X("total_orders:Q", title="Jumlah Pesanan"),
-        y=alt.Y(
-            "product_category:N",
-            title="Kategori Produk",
-            sort=alt.EncodingSortField(field="total_orders", order="descending"),
-        ),
-        tooltip=["product_category", "total_orders"],
-    )
-    .properties(title="📦 Top 10 Kategori Produk Paling Laris")
-    .interactive()
-)
-
-st.altair_chart(product_chart, use_container_width=True)
-
-# Tambahkan chart untuk produk paling tidak laris
-product_chart_data_worst = (
-    main_data_filtered["product_category_name_english"]
-    .value_counts()
-    .nsmallest(10)
-    .reset_index()
-    .rename(
-        columns={
-            "count": "total_orders",
-            "product_category_name_english": "product_category",
-        }
-    )
-)
-
-product_chart_worst = (
-    alt.Chart(product_chart_data_worst)
-    .mark_bar(color="#ff6666")
-    .encode(
-        x=alt.X("total_orders:Q", title="Jumlah Pesanan"),
-        y=alt.Y(
-            "product_category:N",
-            title="Kategori Produk",
-            sort=alt.EncodingSortField(field="total_orders", order="ascending"),
-        ),
-        tooltip=["product_category", "total_orders"],
-    )
-    .properties(title="🔻 10 Kategori Produk Paling Tidak Laris")
-    .interactive()
-)
-
-st.altair_chart(product_chart_worst, use_container_width=True)
-
-# Tambahkan boxplot harga
+# Tambahkan section analisis pembayaran
 st.divider()
-st.header("💰 Distribusi Harga per Kategori Produk")
+st.header("💳 Analisis Tipe Pembayaran")
 
-# Ambil kategori dari data sebelumnya
-top_categories = product_chart_data["product_category"].tolist()
-worst_categories = product_chart_data_worst["product_category"].tolist()
-
-# Filter data untuk boxplot
-top_prices = main_data_filtered[
-    main_data_filtered["product_category_name_english"].isin(top_categories)
-]
-worst_prices = main_data_filtered[
-    main_data_filtered["product_category_name_english"].isin(worst_categories)
-]
-
-# Boxplot untuk kategori teratas
-box_top = (
-    alt.Chart(top_prices)
-    .mark_boxplot(color="#4CAF50")
-    .encode(
-        x=alt.X("price:Q", title="Harga (USD)", scale=alt.Scale(domain=[0, 500])),
-        y=alt.Y(
-            "product_category_name_english:N",
-            title="Kategori",
-            sort=alt.EncodingSortField(field="price", op="median", order="descending"),
-        ),
-    )
-    .properties(title="📈 Distribusi Harga - 10 Kategori Terlaris")
+# Hitung data
+payment_data = (
+    main_data_filtered.groupby("payment_type")
+    .agg(mean_price=("price", "mean"), total_payments=("payment_type", "count"))
+    .reset_index()
 )
 
-# Boxplot untuk kategori terbawah
-box_worst = (
-    alt.Chart(worst_prices)
-    .mark_boxplot(color="#ff6666")
-    .encode(
-        x=alt.X("price:Q", title="Harga (USD)", scale=alt.Scale(domain=[0, 500])),
-        y=alt.Y(
-            "product_category_name_english:N",
-            title="Kategori",
-            sort=alt.EncodingSortField(field="price", op="median", order="descending"),
-        ),
+# Buat layout 2 kolom
+col1, col2 = st.columns(2)
+
+with col1:
+    # Horizontal bar chart rata-rata harga
+    st.markdown("**📊 Rata-rata Harga per Tipe Pembayaran**")
+
+    # Urutkan data dari terbesar ke terkecil
+    sorted_data = payment_data.sort_values("mean_price", ascending=True)
+
+    # Buat chart menggunakan matplotlib
+    fig, ax = plt.subplots()
+    ax.barh(
+        sorted_data["payment_type"],
+        sorted_data["mean_price"],
+        edgecolor="black",
     )
-    .properties(title="📉 Distribusi Harga - 10 Kategori Tidak Laris")
+
+    # Tambahkan label nilai
+    for i, v in enumerate(sorted_data["mean_price"]):
+        ax.text(v + 3, i, f"${v:,.2f}", color="black", va="center", fontsize=9)
+
+    # Styling chart
+    ax.set_xlabel("Rata-rata Harga (USD)")
+    ax.set_xlim(0, sorted_data["mean_price"].max() * 1.2)
+    ax.grid(axis="x", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+
+    st.pyplot(fig, use_container_width=True)
+
+with col2:
+    # Pie chart distribusi pembayaran
+    st.markdown("**🔄 Distribusi Tipe Pembayaran**")
+    fig, ax = plt.subplots()
+    ax.pie(
+        payment_data["total_payments"],
+        labels=payment_data["payment_type"],
+        autopct="%1.1f%%",
+        startangle=90,
+        colors=["#4CAF50", "#2196F3", "#FF9800", "#E91E63"],
+    )
+    ax.axis("equal")  # Pie chart lingkaran sempurna
+    st.pyplot(fig, use_container_width=True)
+
+st.divider()
+
+st.header("📈 Top Performers")
+
+# Top 5 Kategori berdasarkan Revenue
+st.markdown("**💰 Top 5 Kategori Berdasarkan Revenue**")
+
+top5_revenue = (
+    main_data_filtered.groupby("product_category_name_english")["price"]
+    .sum()
+    .nlargest(5)
+    .reset_index()
+    .rename(
+        columns={
+            "price": "total_revenue",
+            "product_category_name_english": "product_category",
+        }
+    )
 )
 
-# Tampilkan boxplot
-st.altair_chart(box_top, use_container_width=True)
-st.altair_chart(box_worst, use_container_width=True)
+# Urutkan untuk chart
+top5_sorted = top5_revenue.sort_values("total_revenue", ascending=True)
 
+# Buat horizontal bar chart
+fig, ax = plt.subplots()
+ax.barh(
+    top5_sorted["product_category"],
+    top5_sorted["total_revenue"],
+    edgecolor="black",
+)
+
+# Tambahkan label nilai
+for i, v in enumerate(top5_sorted["total_revenue"]):
+    ax.text(v + 100, i, f"${v:,.0f}", color="black", va="center", fontsize=9)
+
+# Styling chart
+ax.set_xlabel("Total Revenue (USD)")
+ax.set_xlim(0, top5_sorted["total_revenue"].max() * 1.1)
+ax.grid(axis="x", linestyle="--", alpha=0.7)
+plt.tight_layout()
+
+st.pyplot(fig, use_container_width=True)
 st.divider()
